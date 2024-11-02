@@ -185,8 +185,9 @@ function endOptions(){
 }
 
 function newquiz(){
-    const remainingcategories=Array.from(selectcategory.options).filter(option=>!selectedCategories.has(option.value))
+    // const selectcategory=Array.from(selectcategory.options).filter(option=>!selectedCategories.has(option.value))
     resetState()
+    displayCategories()
 }
 
 function resetState(){
@@ -202,9 +203,8 @@ function resetState(){
     categories.classList.add("display");
     questionsContainer.classList.add("display");
     scoreBoard.classList.add("display");
-    fetchQue.classList.remove('display')
-    alert('Game has been reset, Enter player names to start a new one')
-    // displayCategories()
+    // fetchQue.classList.add('display')
+    endoptions.classList.add('display')
 }
 
 function resetgame(){
@@ -212,4 +212,5 @@ function resetgame(){
     // scoreBoard.classList.add('display')
     resetState()
     scoreBoard.innerHTML=""
+    alert('Game has been reset, Enter player names to start a new one')
 }
