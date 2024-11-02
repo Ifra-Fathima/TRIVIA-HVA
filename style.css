@@ -1,0 +1,19 @@
+.display{
+    display: none;
+}
+
+input{
+    width: 500px;
+    height: 50px;
+}
+
+button{
+    width: 500px;
+    height: 50px;
+
+}
+
+select{
+    width: 500px;
+    height: 50px;
+}
