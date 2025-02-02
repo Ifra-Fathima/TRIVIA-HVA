@@ -1,19 +1,58 @@
-.display{
-    display: none;
-}
-
 input{
     width: 500px;
+    height: 60px;
+    font-size: 20px;
+    padding: 2px 5px 2px 10px;
+}
+
+#info-conatiner{
+    padding: 15px;
+    font-size: 40px;
+}
+
+#info-conatiner h1{
+    font-size: 50px;
+}
+
+#endOptions button{
+    width: 450px;
     height: 50px;
+    
+}
+
+#scoreBoard p{
+    font-size: 25px;
+}
+
+#scoreBoard h2{
+    font-size: 35px;
 }
 
 button{
     width: 500px;
     height: 50px;
+    font-size: 20px;
+}
 
+.display{
+    visibility:hidden;
 }
 
 select{
     width: 500px;
-    height: 50px;
+    height: 60px;
+    font-size:20px ;
+    padding: 2px 5px 2px 10px;
+
+}
+
+#answers button{
+    width: 400px;
+    max-height:fit-content;
+    min-height: 50px;
+    font-size: 20px;
+    margin: 5px;
+    display:flex;
+    align-items:center;
+    justify-content: center;
 }

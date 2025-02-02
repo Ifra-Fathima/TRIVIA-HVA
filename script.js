@@ -1,81 +1,89 @@
-const start = document.getElementById('start');
-const selectcategory = document.getElementById('category')
-const categories=document.getElementById('categories')
-const playersinfo=document.getElementById('players-info')
-const questionsContainer=document.getElementById('display-quetsions')
-const fetchQue=document.getElementById("fetch-questions")
-const questionDiv=document.getElementById('questions');
-const answerDiv=document.getElementById('answers')
-const scoreBoard=document.getElementById('score-board')
-const endoptions=document.getElementById('end-options')
-const playagain=document.getElementById('playAgain')
-const endbutton=document.getElementById('endbutton')
-
-let questionsCount=0
-let player1score=0
-let player2score=0
+const start=document.forms["myform"]["submit"];
+const categoriesDiv = document.getElementById('categoriesDiv')
+const player1=document.forms["myform"]["player1"]
+const player2=document.forms["myform"]["player2"]
+const selectCategory=document.getElementById("selectCategory")
+let player1score = 0;
+let player2score = 0;
+const scoreBoard = document.getElementById('scoreBoard');
+let selectedCategoriesList=new Set()
 let questions=[]
-let currentQueIndex=0
-let options=[]
-let currentplayer=1
-let selectedCategories=new Set()
+const getQuestions=document.getElementById("getQuestions")
+const questionDiv= document.getElementById("questions")
+const answersDiv=document.getElementById("answers")
+let currentPlayer=1
+const playAgain=document.getElementById("playAgain")
+const endButton=document.getElementById("endButton")
 
-start.addEventListener("click", startGame)
+selectCategory.disabled=true
+getQuestions.disabled=true
+playAgain.disabled=true
+endButton.disabled=true
 
-function startGame(){
-    validatenames()
-}
+start.addEventListener("click", validateNames)
 
-function validatenames(){
-    const player1name=document.getElementById('player1').value;
-    const player2name=document.getElementById('player2').value;
-
-    if (!player1name || !player2name) {
-        alert('Please enter names for both players');
-        return;
+function validateNames(){
+    const player1=document.forms["myform"]["player1"].value.trim();
+    const player2=document.forms["myform"]["player2"].value.trim();
+    
+    if (!player1 || !player2) {
+        alert('Please enter names for both players')
+        return
     }
 
-    if(player1name===player2name){
+    if(player1===player2){
         alert("please enter two different names")
         return
     }
-    displayCategories();
+    displayCategories()
 }
 
+async function displayCategories(){
+    selectCategory.disabled=false
+    getQuestions.disabled=false
+    player1.disabled=true
+    player2.disabled=true
+    start.disabled=true
 
-function displayCategories() {
-    categories.classList.remove('display')
-    playersinfo.classList.add('display')
-    selectcategory.innerHTML=""
-    fetch("https://the-trivia-api.com/api/categories")
-        .then(response => response.json())
-        .then(data => {
-            Object.keys(data).forEach(category => {
-                if(!selectedCategories.has(category)){
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                selectcategory.appendChild(option)
-                }
-            })
-            if(selectcategory.options.length===0){
-                alert('All categories used, game over')
-                resetgame()
-            }
-        })
-        .catch(error=>{
-            console.error("Something wrong, Try Again",error)
-        })
+    try{
+        const response=await fetch("https://the-trivia-api.com/api/categories")
+
+        if(!response.ok){
+            throw new Error("Failed to fetch the categories")
+        }
+
+        const data=await response.json()
+        selectCategory.innerHTML=""
+            
+        for(let category in data){
+            if(!selectedCategoriesList.has(category)){
+                const option =document.createElement("option");
+                option.value=category
+                option.innerText=category
+                selectCategory.appendChild(option)
+            }   
+        }
+
     }
+    catch(error){
+        console.error(error)
+        alert("Failed to fetch the categories")
+    }
+    
+}
 
-fetchQue.addEventListener("click",fetchQuestions)
+getQuestions.addEventListener("click",fetchQuestions)
 
 async function fetchQuestions(){
-    categories.classList.add('display')
-    const selectedCategory=selectcategory.value;
-    selectedCategories.add(selectedCategory)
+    selectCategory.disabled=true
+    getQuestions.disabled=true
 
-    const formattedcateogry =selectedCategory.toLowerCase().replace(/\s+/g,'_').replace(/&/g, 'and');
+    const selectedCategory=selectCategory.value
+    const selectedOption=selectCategory.selectedIndex
+    selectedCategoriesList.add(selectedCategory)
+    selectCategory.remove(selectedOption)
+
+    const formattedcateogry =selectedCategory.toLowerCase().replaceAll(" ",'_').replaceAll("&", 'and');
 
     let easyques=await fetch(`https://the-trivia-api.com/v2/questions?categories=${formattedcateogry}&difficulties=easy&limit=2`).then(response=>response.json())
     let midques=await fetch(`https://the-trivia-api.com/v2/questions?categories=${formattedcateogry}&difficulties=medium&limit=2`).then(response=>response.json())
@@ -84,48 +92,37 @@ async function fetchQuestions(){
     questions=[...easyques,...midques,...hardques]
     currentQueIndex=0
     displayQuestions()
- }
+}
 
-
-
+let currentQueIndex=0;
 
 function displayQuestions(){
-    if (currentQueIndex>=questions.length){
-        endthegame()
-        return
-    }
-
-    questionsContainer.classList.remove('display')
-    const currentquestion=questions[currentQueIndex];
-    options=[currentquestion.correctAnswer,...currentquestion.incorrectAnswers]
+    answersDiv.innerHTML=""
+    const currentQuestion=questions[currentQueIndex]
+    options=[...currentQuestion.incorrectAnswers,currentQuestion.correctAnswer]
     options.sort(()=>Math.random()-0.5)
-
-    questionDiv.textContent=currentquestion.question.text;
-    answerDiv.innerHTML=""
-    options.forEach((answer,index)=>{
-        const button=document.createElement('button');
-        button.textContent=answer;
-        button.onclick=()=>checkAnswer(index,options,currentquestion.correctAnswer)
-        answerDiv.appendChild(button)
-    })
-    updateScoreboard();
+    
+    questionDiv.innerHTML=currentQuestion.question.text;
+    for(let i=0;i<options.length;i++){
+        const button=document.createElement("button")
+        button.textContent=options[i]
+        button.onclick=()=>checkAnswer(options[i],currentQuestion.correctAnswer)
+        answersDiv.appendChild(button)
+    }
 }
 
 
-function checkAnswer(index,options,correctAnswer){
-    // const rightanswer=questions[currentQueIndex].correctAnswer
-    const selectedanswer=options[index]
-    
-    if(selectedanswer===correctAnswer){
-        if(currentplayer===1){
+function checkAnswer(selectedAnswer,correctAnswer){
+    console.log(selectedAnswer)
+    if(selectedAnswer===correctAnswer){
+        if(currentPlayer===1){
             player1score+=getPoints(currentQueIndex)
         }
         else{
             player2score+=getPoints(currentQueIndex)
         }
     }
-   
-    currentplayer = currentplayer === 1 ? 2 : 1;
+    currentPlayer=currentPlayer===1? 2:1;
     updateScoreboard();
     nextQuestion();
 }
@@ -138,79 +135,83 @@ function getPoints(queindex){
 
 function nextQuestion(){
     if (currentQueIndex<questions.length-1){
-        currentQueIndex++
-        displayQuestions()
+        currentQueIndex++;
+        displayQuestions();
     }else{
-        endthegame()
+        endTheGame()
     }
 }
 
-function updateScoreboard(){
-    scoreBoard.innerHTML=`<h2>score board</h2>`+
-    `<p>player 1 score:${player1score}</p>`+
-    `player 2 score: ${player2score} </p>`
-}
-
-function endthegame(){
-    questionsContainer.classList.add('display')
-    scoreBoard.classList.remove('display')
-
+function endTheGame(){
+    questionDiv.innerHTML=""
+    answersDiv.innerHTML=""
+    playAgain.disabled=false
+    endButton.disabled=false
     let winner;
-    if (player1score>player2score){
-        winner="Player 1 wims"
-    }
-    else if(player2score>player1score){
-        winner="player 2 wins"
-    }
-    else{
-        winner="it is a tie"
+    if(player1score>player2score){
+        winner="Player 1 Wins!"
+    }else if(player2score>player1score){
+        winner="Player 2 Wins!"
+    }else{
+        winner="It is a tie"
     }
     scoreBoard.innerHTML+=`<h2>${winner}</h2>`
-    endOptions()
+    selectCategory.disabled = true
+    getQuestions.disabled = true
 }
 
-function endOptions(){
-    endoptions.classList.remove('display')
-    playagain.onclick=()=>{
-        endoptions.classList.add('display')
-        newquiz()
-    }
 
-    endbutton.onclick=()=>{
-        endbutton.classList.add('display')
-        alert("game over")
-        resetgame()
+playAgain.onclick=()=>{
+    if(selectCategory.options.length===0){
+        alert('All categories used, game over')
+        resetGame()
     }
-
+    else{
+        newQuiz()
+        alert('Game has been reset, select a new category!')
+    }
+    
 }
 
-function newquiz(){
-    // const selectcategory=Array.from(selectcategory.options).filter(option=>!selectedCategories.has(option.value))
-    resetState()
-    displayCategories()
+endButton.onclick=()=>{
+    alert("Game over, Enter the names to start again!!!")
+    resetGame()
+}
+
+
+function updateScoreboard(){
+    scoreBoard.innerHTML=`<h2>Score Board</h2 >`+
+    `<p>Player 1 Score: ${player1score}</p>`+
+    `<p>Player 2 Score: ${player2score}</p>`
 }
 
 function resetState(){
-    questions=[]
-    currentQueIndex=0
-    player1score=0
-    player2score=0
-    player1name=""
-    player2name=""
-    currentplayer=1
-    selectcategory.innerHTML=""
-    playersinfo.classList.remove("display");
-    categories.classList.add("display");
-    questionsContainer.classList.add("display");
-    scoreBoard.classList.add("display");
-    // fetchQue.classList.add('display')
-    endoptions.classList.add('display')
+    player1score = 0
+    player2score = 0
+    currentQueIndex = 0
+    questions = []
+    playAgain.disabled=true
+    endButton.disabled=true
+    scoreBoard.innerHTML=""
+    questionDiv.innerHTML=""
+    answersDiv.innerHTML=""
 }
 
-function resetgame(){
-    selectedCategories.clear()
-    // scoreBoard.classList.add('display')
+function newQuiz(){
+    displayCategories()
     resetState()
-    scoreBoard.innerHTML=""
-    alert('Game has been reset, Enter player names to start a new one')
 }
+
+function resetGame(){
+    player1.disabled = false
+    player2.disabled = false
+    start.disabled = false
+    player1.value=""
+    player2.value=""
+    resetState()
+    selectCategory.disabled = true
+    getQuestions.disabled=true
+    endButton.disabled=true
+    selectedCategoriesList.clear() 
+}
+

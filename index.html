@@ -10,33 +10,30 @@
 
 <body>
     <div id="info-conatiner">
-        <h1>Two-Player Trivia Battle Game</h1>
-        <div id="players-info">
-            <input type="text" id="player1" placeholder="Player 1 name">
-            <span id="player1error"></span><br>
-            <input type="text" id="player2" placeholder="Player 2 name">
-            <span id="player2error"></span>
-            <br>
-            <button id="start">Start</button>
-        </div>
+        <form action="#" name="myform" >
+            <h1>Two-Player Trivia Battle Game</h1><br>
+            <input type="text" name="player1" placeholder="Player 1 name"><br>
+            <input type="text" name="player2" placeholder="Player 2 name"><br>
+            <button type="button" name="submit" >Start</button>
+        </form>
         
-        <div id="categories" class="display">
-            <select id="category" placeholder="select a common category" >
-                <option value="" disabled selected>Select a category</option>
+        <div id="categoriesDiv">
+            <select id="selectCategory" >
+                <option value="" selected disabled >Select a category</option>
             </select><br>
-            <button id="fetch-questions">Fetch questions</button>
+            <button id="getQuestions">Fetch questions</button><br><br>
         </div>
 
-        <div id="display-quetsions" class="display">
+        <div id="displayQuestions">
             <div id="questions"></div>
             <div id="answers"></div>
         </div>
 
-        <div id="score-board" class="display"></div>
+        <div id="scoreBoard"></div>
 
-        <div id="end-options" class="display">
+        <div id="endOptions">
             <button id ="playAgain">Play Again with a different category</button>
-            <button id="endbutton">End Game</button>
+            <button id="endButton">End Game</button>
         </div>
     </div>
     <script src="script.js"></script>
