@@ -46,7 +46,7 @@ async function displayCategories(){
     start.disabled=true
 
     try{
-        const response=await fetch("https://the-trivia-api.com/api/categories")
+        const response=await fetch("https://the-trivia-api.com/v2/categories")
 
         if(!response.ok){
             throw new Error("Failed to fetch the categories")
